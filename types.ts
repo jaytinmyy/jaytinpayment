@@ -36,6 +36,17 @@ export interface Attachment {
   fileSize?: number;
 }
 
+export interface Voucher {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  amount: number;
+  expiryDate: string;
+  status: 'Used' | 'Unused' | 'Expired';
+  createdAt: string;
+}
+
 export interface LedgerRecord {
   id: string; 
   shareKey: string; // 混淆加密共享密钥
@@ -51,10 +62,21 @@ export interface LedgerRecord {
   items: PurchaseItem[];
   payments: PaymentRecord[];
   notes: SystemNote[];
+  vouchers: Voucher[];
   attachments: Attachment[];
   status: 'Active' | 'Settled' | 'Overdue';
+  category?: 'Vehicle' | 'Real Estate' | 'Jewelry' | 'Electronics' | 'Business' | 'Other';
   ownerId?: string;
   updatedAt?: any; // Firestore serverTimestamp
+}
+
+export interface VisitRecord {
+  id: string;
+  timestamp: string;
+  ip: string;
+  userAgent: string;
+  device: string;
+  location?: string;
 }
 
 export interface MonthlyTrend {

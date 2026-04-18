@@ -17,20 +17,53 @@
         "endDate": { "type": "string", "format": "date-time" },
         "nextPaymentDate": { "type": "string", "format": "date-time" },
         "status": { "type": "string", "enum": ["Active", "Settled", "Overdue"] },
+        "category": { "type": "string", "enum": ["Vehicle", "Real Estate", "Jewelry", "Electronics", "Business", "Other"], "description": "Classification category for visual identification." },
         "items": { "type": "array" },
         "payments": { "type": "array" },
         "notes": { "type": "array" },
+        "vouchers": { "type": "array", "description": "Collection of promotional or credit vouchers." },
         "attachments": { "type": "array" },
         "updatedAt": { "type": "string", "format": "date-time" },
         "ownerId": { "type": "string", "description": "User ID of the record owner." }
       },
       "required": ["id", "userName", "type", "totalAmount", "paidAmount", "status", "ownerId"]
+    },
+    "Voucher": {
+      "title": "Voucher",
+      "description": "A credit or discount voucher assigned to a ledger.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "amount": { "type": "number" },
+        "expiryDate": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["Used", "Unused", "Expired"] }
+      },
+      "required": ["id", "code", "name", "amount", "expiryDate", "status"]
+    },
+    "VisitRecord": {
+      "title": "Visit Record",
+      "description": "Log entry for when a shared link is viewed.",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "ip": { "type": "string" },
+        "userAgent": { "type": "string" },
+        "device": { "type": "string" },
+        "location": { "type": "string" }
+      },
+      "required": ["timestamp", "ip"]
     }
   },
   "firestore": {
     "/ledgers/{ledgerId}": {
       "schema": "LedgerRecord",
       "description": "Collection of financial ledger records."
+    },
+    "/ledgers/{ledgerId}/visits/{visitId}": {
+      "schema": "VisitRecord",
+      "description": "Tracking logs for shared views."
     },
     "/users/{userId}": {
       "schema": {

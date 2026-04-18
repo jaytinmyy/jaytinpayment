@@ -86,6 +86,13 @@ const App: React.FC = () => {
           setIsPublicMode(true);
           setIsLoading(true);
           try {
+            // Track view before fetching
+            fetch('/api/track-view', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ shareKey: key })
+            }).catch(e => console.error("Tracking signal failed", e));
+
             // Find record by shareKey in the ledgers collection
             const q = query(collection(db, 'ledgers'), where('shareKey', '==', key));
             const querySnapshot = await getDocs(q);

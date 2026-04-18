@@ -36,6 +36,7 @@ const RecordFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialData
   const [cycleCount, setCycleCount] = useState<number>(1);
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState('');
+  const [category, setCategory] = useState<LedgerRecord['category']>('Other');
 
   useEffect(() => {
     if (initialData) {
@@ -45,6 +46,7 @@ const RecordFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialData
       setCycleCount(initialData.cycleCount || 1);
       setStartDate(initialData.startDate);
       setEndDate(initialData.endDate || '');
+      setCategory(initialData.category || 'Other');
     } else if (isOpen) {
       setUserName('');
       setType('Installment');
@@ -52,6 +54,7 @@ const RecordFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialData
       setCycleCount(1);
       setStartDate(new Date().toISOString().split('T')[0]);
       setEndDate('');
+      setCategory('Other');
     }
   }, [initialData, isOpen]);
 
@@ -64,16 +67,17 @@ const RecordFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialData
       userName,
       type,
       startDate,
+      category,
       endDate: endDate || undefined,
       paymentCycle: type === 'Installment' ? cycle : undefined,
       cycleCount: type === 'Installment' ? cycleCount : undefined,
-      // 如果老数据没有 shareKey，在这里自动补全，解决 URL 变成 ERROR 的问题
       shareKey: initialData.shareKey || generateShareKey(),
     } : {
       id: generateJayTINId(),
       shareKey: generateShareKey(),
       userName,
       type,
+      category,
       totalAmount: 0,
       paidAmount: 0,
       paymentCycle: type === 'Installment' ? cycle : undefined,
@@ -82,6 +86,7 @@ const RecordFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialData
       endDate: endDate || undefined,
       items: [],
       payments: [],
+      vouchers: [],
       notes: [{ id: `N-${Date.now()}`, timestamp: new Date().toLocaleString(), content: 'Protocol initialized.' }],
       attachments: [],
       status: 'Active'
@@ -115,6 +120,17 @@ const RecordFormModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialData
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Maturity Date</label>
                 <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-white/40 border border-white/30 rounded-2xl px-5 py-4 text-sm focus:outline-none" />
               </div>
+            </div>
+            <div>
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Classification Category</label>
+              <select value={category || 'Other'} onChange={(e) => setCategory(e.target.value as any)} className="w-full bg-white/40 border border-white/30 rounded-2xl px-5 py-4 text-sm focus:outline-none appearance-none cursor-pointer">
+                <option value="Vehicle">Vehicle</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="Jewelry">Jewelry</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Business">Business</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
             <div>
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Protocol Type</label>
