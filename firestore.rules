@@ -44,9 +44,11 @@ service cloud.firestore {
         && data.status in ['Active', 'Settled', 'Overdue']
         && data.ownerId is string && data.ownerId == request.auth.uid
         && (data.shareKey == null || (data.shareKey is string && data.shareKey.size() >= 32 && data.shareKey.size() <= 200))
+        && (data.category == null || data.category in ['Vehicle', 'Real Estate', 'Jewelry', 'Electronics', 'Business', 'Other'])
         && (data.items is list && data.items.size() <= 100)
         && (data.payments is list && data.payments.size() <= 500)
         && (data.notes is list && data.notes.size() <= 500)
+        && (data.vouchers == null || (data.vouchers is list && data.vouchers.size() <= 100))
         && (data.attachments is list && data.attachments.size() <= 20);
     }
 
@@ -77,11 +79,19 @@ service cloud.firestore {
             'userName', 'type', 'totalAmount', 'paidAmount', 
             'paymentCycle', 'cycleCount', 'startDate', 'endDate', 
             'nextPaymentDate', 'status', 'items', 'payments', 
-            'notes', 'attachments', 'updatedAt', 'shareKey'
+            'notes', 'attachments', 'updatedAt', 'shareKey',
+            'category', 'vouchers'
           ])
         );
-
+      
       allow delete: if isOwner(existing());
+
+      match /visits/{visitId} {
+        // Allow creation for server-side view tracking
+        allow create: if true;
+        // Protected read: Only owner can see tracking data
+        allow read: if isSignedIn() && (get(/databases/$(database)/documents/ledgers/$(ledgerId)).data.ownerId == request.auth.uid);
+      }
     }
 
     match /users/{userId} {
