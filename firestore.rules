@@ -1,0 +1,95 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Primitives ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(data) {
+      return isSignedIn() && data.ownerId == request.auth.uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // --- Validation Blueprints ---
+    function isValidLedger(data) {
+      return data.size() >= 7
+        && data.id is string && data.id.size() <= 120
+        && data.userName is string && data.userName.size() > 0 && data.userName.size() <= 100
+        && data.type in ['Installment', 'Delayed']
+        && data.totalAmount is number && data.totalAmount >= 0 && data.totalAmount < 1000000000
+        && data.paidAmount is number && data.paidAmount >= 0
+        && data.status in ['Active', 'Settled', 'Overdue']
+        && data.ownerId is string && data.ownerId == request.auth.uid
+        && (data.shareKey == null || (data.shareKey is string && data.shareKey.size() >= 32 && data.shareKey.size() <= 200))
+        && (data.items is list && data.items.size() <= 100)
+        && (data.payments is list && data.payments.size() <= 500)
+        && (data.notes is list && data.notes.size() <= 500)
+        && (data.attachments is list && data.attachments.size() <= 20);
+    }
+
+    // --- Collection: Ledgers ---
+    match /ledgers/{ledgerId} {
+      // Access Logic:
+      // Owners have full access.
+      // Non-owners can 'get' or 'list' if they have a valid shareKey filter.
+      
+      allow get: if isOwner(existing()) || (existing().shareKey != null);
+      
+      // Pillar 8: Secure List Queries
+      allow list: if isOwner(resource.data) || (resource.data.shareKey != null);
+      
+      allow create: if isSignedIn() 
+        && isValidId(ledgerId) 
+        && isValidLedger(incoming())
+        && incoming().id == ledgerId
+        && incoming().updatedAt == request.time;
+
+      allow update: if isOwner(existing())
+        && isValidLedger(incoming())
+        && incoming().id == existing().id
+        && incoming().ownerId == existing().ownerId
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'userName', 'type', 'totalAmount', 'paidAmount', 
+            'paymentCycle', 'cycleCount', 'startDate', 'endDate', 
+            'nextPaymentDate', 'status', 'items', 'payments', 
+            'notes', 'attachments', 'updatedAt', 'shareKey'
+          ])
+        );
+
+      allow delete: if isOwner(existing());
+    }
+
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    match /users {
+      allow list: if isSignedIn();
+    }
+  }
+}

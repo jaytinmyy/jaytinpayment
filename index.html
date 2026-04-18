@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>JayTIN | Premium Financial Glass System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      @font-face {
+        font-family: 'YuanQi';
+        src: local('PingFang SC'), local('Microsoft YaHei');
+      }
+      body {
+        font-family: 'Nunito', 'YuanQi', sans-serif;
+        background-color: #EBFAFF;
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+        color: #333333;
+        overflow-x: hidden;
+      }
+      .font-jua {
+        font-family: 'Jua', sans-serif;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+      }
+      .gold-accent {
+        color: #B8A17D;
+      }
+      .gold-glow {
+        box-shadow: inset 0 0 12px rgba(184, 161, 125, 0.08);
+      }
+      input, textarea, select {
+        color: #666666 !important;
+        font-size: 16px !important; /* Prevent iOS auto-zoom */
+      }
+      input::placeholder, textarea::placeholder {
+        color: rgba(153, 153, 153, 0.5) !important;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(153, 153, 153, 0.2);
+        border-radius: 10px;
+      }
+      /* Mobile touch feedback */
+      .active-scale:active {
+        transform: scale(0.96);
+        transition: transform 0.1s ease;
+      }
+      /* Hide scrollbar for tabs */
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.23.26",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
